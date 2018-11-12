@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Canvas_Rain</title>
+    <style>
+        body{
+            margin: 0;
+        }
+        canvas {
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+
+<canvas class="rain"></canvas>
+
+<script>
+
+    // 获取canvas元素
+    var canvas = document.querySelector('.rain');
+
+    var w, h;
+
+    ~~function setSize() {
+        window.onresize = arguments.callee;
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w;
+        canvas.height = h;
+    }();
+
+    // 获取可绘制区域
+    var canCon = canvas.getContext('2d');
+
+    var aRain = new Array();
+
+    function Random(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    // 构造函数
+    function Rain() {}
+
+    Rain.prototype = {
+        init: function() {
+            // 新生成雨滴的 x 位置
+            this.x = Random(0, w);
+            // 新生成雨滴的 y 位置
+            this.y = 0;
+            // 雨滴每秒下降速度
+            this.v = Random(4, 5);
+            // 雨滴何时停止
+            this.h = Random(0.8 * h, 0.9 * h);
+            // 雨滴绽放初始半径
+            this.r = 1;
+            this.vr = 1;
+        },
+        draw: function() {
+            if (this.y < this.h) {
+                canCon.beginPath();
+                canCon.fillStyle = "#FFCCCC";
+                canCon.fillRect(this.x, this.y, 4, 10);
+            } else {
+                canCon.beginPath();
+                canCon.strokeStyle = "#FFCCCC";
+                canCon.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                canCon.stroke();
+            }
+        },
+        move: function () {
+            if (this.y < this.h) {
+                this.y += this.v;
+            } else {
+                if (this.r < 125) {
+                    this.r += this.vr;
+                } else {
+                    this.init();
+                }
+            }
+            this.draw();
+        },
+    };
+
+    var rain = new Rain();
+
+    function createRain(num) {
+        for (let i = 0; i < num; i++) {
+            setTimeout(function () {
+                var rain = new Rain();
+                rain.init();
+                rain.draw();
+                aRain.push(rain);
+            }, 200 * i);
+        }
+    }
+    createRain(45);
+
+    setInterval(function () {
+        canCon.fillStyle = "rgba(0, 0, 0, 0.05)";
+        canCon.fillRect(0, 0, w, h);
+        for (let item of aRain) {
+            item.move();
+        }
+    }, 1000 / 60);
+
+
+
+</script>
+</body>
+</html>
